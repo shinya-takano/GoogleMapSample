@@ -1,7 +1,11 @@
 package com.example.google.map.sample
 
+import android.graphics.Rect
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.util.TypedValue
+import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 
@@ -33,6 +37,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // CoordinatorLayout の 直下に配置している View を渡す
         bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottomSheetLayout))
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+
+                    Log.d("tag", "slideOffset=$slideOffset")
+
+                    // 異常値を弾く
+                    if (slideOffset > 1 || slideOffset < -1) {
+                        return
+                    }
+
+                    val size = Rect()
+                    window.decorView.getWindowVisibleDisplayFrame(size)
+                    val minHeight = 56 // peek_height
+                    val slide = 300 - minHeight // size.height()
+                    val defaultBottomMargin = 8
+                    val bottomMargin = (slide * slideOffset + minHeight + defaultBottomMargin).toInt()
+                    mMap.setPadding(0 ,0, 0, dp2px(bottomMargin))
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+
+                }
+            })
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
         // 仮でMyHouse=吉祥寺, MyOffice=渋谷
         findViewById<Button>(R.id.buttonMyHouse).setOnClickListener {
@@ -71,5 +99,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 初期値は自宅
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MY_HOUSE_LAT_LNG, 16f))
+    }
+
+    // see https://developer.android.com/training/multiscreen/screendensities?hl=ja#dips-pels
+    private fun dp2px(dp: Int): Int {
+        val scale: Float = resources.displayMetrics.density
+        // Convert the dps to pixels, based on density scale
+        return (dp * scale + 0.5f).toInt()
     }
 }
