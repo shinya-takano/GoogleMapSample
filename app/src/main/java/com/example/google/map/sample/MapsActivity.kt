@@ -47,10 +47,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         return
                     }
 
-                    val size = Rect()
-                    window.decorView.getWindowVisibleDisplayFrame(size)
                     val minHeight = 56 // peek_height
-                    val slide = 300 - minHeight // size.height()
+                    val slide = 300 - minHeight
                     val defaultBottomMargin = 8
                     val bottomMargin = (slide * slideOffset + minHeight + defaultBottomMargin).toInt()
                     mMap.setPadding(0 ,0, 0, dp2px(bottomMargin))
